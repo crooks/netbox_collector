@@ -1,5 +1,5 @@
 // satapi provides an API interface to Red Hat Satellite
-package satapi
+package omeapi
 
 import (
 	"crypto/tls"
