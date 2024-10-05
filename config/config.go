@@ -24,18 +24,16 @@ type FileMetric struct {
 
 // Config contains all the configuration settings
 type Config struct {
-	// Groups is keyed by groupname and contains the sha256 has (in hex, formatted as a string)
-	Groups         map[string]GroupMetric `yaml:"groups"`
-	GroupFile      string                 `yaml:"groupfile"`
-	Files          map[string]FileMetric  `yaml:"files"`
-	ScrapeInterval int                    `yaml:"scrape_interval"`
-	Exporter       struct {
-		Address string `yaml:"address"`
-		Port    int    `yaml:"port"`
+	OmeApi struct {
+		Url      string `yaml:"url"`
+		UserID   string `yaml:"userid"`
+		Password string `yaml:"password"`
 	}
+
 	Logging struct {
 		Journal  bool   `yaml:"journal"`
 		LevelStr string `yaml:"level"`
+		Filename string `yamn:"filename"`
 	} `yaml:"logging"`
 }
 
@@ -53,18 +51,6 @@ func ParseConfig(filename string) (*Config, error) {
 		return nil, err
 	}
 	// Define some defaults
-	if config.GroupFile == "" {
-		config.GroupFile = "/etc/group"
-	}
-	if config.ScrapeInterval == 0 {
-		config.ScrapeInterval = 60
-	}
-	if config.Exporter.Address == "" {
-		config.Exporter.Address = "0.0.0.0"
-	}
-	if config.Exporter.Port == 0 {
-		config.Exporter.Port = 9773
-	}
 	if config.Logging.LevelStr == "" {
 		config.Logging.LevelStr = "info"
 	}
@@ -75,7 +61,7 @@ func ParseConfig(filename string) (*Config, error) {
 // standard format: --foo=bar
 func ParseFlags() *Flags {
 	f := new(Flags)
-	flag.StringVar(&f.Config, "config", "examples/sha_exporter.yml", "Path to sha_exporter configuration file")
+	flag.StringVar(&f.Config, "config", "examples/netbox_collector.yml", "Path to netbox_collector configuration file")
 	flag.BoolVar(&f.Debug, "debug", false, "Expand logging with Debug level messaging and format")
 	flag.Parse()
 	return f
