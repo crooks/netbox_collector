@@ -1,6 +1,7 @@
 package main
 
 import (
+	stdlog "log"
 	"os"
 
 	"github.com/Masterminds/log-go"
@@ -15,7 +16,7 @@ var (
 	flags *config.Flags
 )
 
-func InitAPI(username, password, cert string) {
+func initAPI(username, password, cert string) *omeapi.AuthClient {
 	api := omeapi.NewBasicAuthClient(username, password, cert)
 	return api
 }
