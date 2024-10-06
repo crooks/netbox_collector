@@ -5,6 +5,10 @@ omeapi:
   password: Swept55Shine43Foots98Blade17%
   certfile: examples/certfile.pem
 
+database:
+  userid: assets
+  password: testing123
+
 logging:
   level: debug
   filename: netbox.log

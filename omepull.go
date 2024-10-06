@@ -30,6 +30,16 @@ func paginate() {
 	}
 }
 
+func dbInit() {
+    psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s, sslmode=disable",
+        cfg.Database.Hostname, cfg.Database.Port, cfg.Database.Username, cfg.Database.Password, cfg.Database.DbName)
+    db, err := sql.Open("postgres", psqlInfo)
+    if err != nil {
+        panic(err)
+    }
+    return db
+}
+
 func (p *paginator) omeDevices() {
 	url := fmt.Sprintf("%s/api/DeviceService/Devices?$top=%d&skip=%d", cfg.OmeApi.Url, p.top, p.skip)
 	b, err := p.api.GetJSON(url)
