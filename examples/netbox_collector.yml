@@ -1,0 +1,10 @@
+---
+omeapi:
+  url: https://lamome01
+  userid: readonly
+  password: Swept55Shine43Foots98Blade17%
+  certfile: examples/certfile.pem
+
+logging:
+  level: debug
+  filename: netbox.log

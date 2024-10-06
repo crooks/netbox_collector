@@ -8,18 +8,12 @@ import (
 	"github.com/crooks/jlog"
 	loglevel "github.com/crooks/log-go-level"
 	"github.com/crooks/netbox_collector/config"
-	"github.com/crooks/netbox_collector/omeapi"
 )
 
 var (
 	cfg   *config.Config
 	flags *config.Flags
 )
-
-func initAPI(username, password, cert string) *omeapi.AuthClient {
-	api := omeapi.NewBasicAuthClient(username, password, cert)
-	return api
-}
 
 func main() {
 	var err error
@@ -51,4 +45,5 @@ func main() {
 		log.Current = log.StdLogger{Level: loglev}
 		log.Debugf("Logging to file %s has been initialised at level: %s", cfg.Logging.Filename, cfg.Logging.LevelStr)
 	}
+	paginate()
 }

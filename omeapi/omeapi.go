@@ -80,7 +80,7 @@ func (s *AuthClient) doRequest(req *http.Request) ([]byte, error) {
 		return nil, err
 	}
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("status error: %s", string(body))
+		return nil, fmt.Errorf("status_code: %d", resp.StatusCode)
 	}
 	return body, nil
 }

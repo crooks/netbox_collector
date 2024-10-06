@@ -1,0 +1,118 @@
+2024/10/05 13:12:30 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 13:12:30 Unable to retrieve URL: Get "https://lamome01.westernpower.co.uk/api/DeviceService/Devices?$top=2&skip=0": tls: failed to verify certificate: x509: certificate signed by unknown authority
+2024/10/05 13:17:23 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 13:17:23 Unable to retrieve URL: Get "https://lamome01.westernpower.co.uk/api/DeviceService/Devices?$top=2&skip=0": tls: failed to verify certificate: x509: certificate is valid for lamome01, not lamome01.westernpower.co.uk
+2024/10/05 13:18:33 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 13:18:34 Unable to retrieve URL: status error: 
+2024/10/05 13:21:17 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 13:21:18 Unable to retrieve https://lamome01/api/DeviceService/Devices?$top=2&skip=0: status error: 
+2024/10/05 13:23:45 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 13:23:46 Unable to retrieve https://lamome01/api/DeviceService/Devices?$top=2&skip=0: status error: 
+2024/10/05 13:25:43 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 13:25:44 Unable to retrieve https://lamome01/api/DeviceService/Devices?$top=2&skip=0: status error: 
+2024/10/05 13:30:13 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 13:30:14 Unable to retrieve https://lamome01/api/DeviceService/Devices?$top=2&skip=0: status error: 
+2024/10/05 13:33:40 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 13:43:44 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 13:46:06 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 13:47:20 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 13:49:44 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 13:53:25 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 13:54:07 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 13:54:58 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 13:55:53 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 13:58:40 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 13:59:19 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 14:00:03 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 14:18:34 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 14:26:27 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 14:27:36 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 14:28:26 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 14:29:43 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 14:54:28 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 14:57:28 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 15:00:31 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 15:53:34 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 15:53:35 [DEBUG]   Total record count: %!s(int=455)
+2024/10/05 15:56:17 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 15:56:17 [DEBUG]   Total record count: 455
+2024/10/05 16:00:28 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 16:00:29 [DEBUG]   Total record count: 455
+2024/10/05 16:38:31 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 16:38:32 [DEBUG]   Total record count: 455
+2024/10/05 16:38:42 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 16:38:43 [DEBUG]   Total record count: 455
+2024/10/05 16:40:06 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 16:40:07 [DEBUG]   Total record count: 455
+2024/10/05 16:40:54 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 16:40:55 [DEBUG]   Total record count: 455
+2024/10/05 16:42:31 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 16:42:31 [DEBUG]   Total record count: 455
+2024/10/05 16:43:40 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 16:43:41 [DEBUG]   Total record count: 455
+2024/10/05 16:50:16 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 16:50:16 [DEBUG]   Total record count: 455
+2024/10/05 17:02:23 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 17:02:24 [DEBUG]   Total record count: 455
+2024/10/05 17:16:12 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 17:16:13 [DEBUG]   Total record count: 455
+2024/10/05 17:17:39 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 17:17:40 [DEBUG]   Total record count: 455
+2024/10/05 17:24:33 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 17:24:38 [DEBUG]   Total record count: 455
+2024/10/05 17:26:54 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 17:27:00 [DEBUG]   Total record count: 455
+2024/10/05 17:27:51 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 17:27:56 [DEBUG]   Total record count: 455
+2024/10/05 19:54:48 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 19:54:55 [DEBUG]   Total record count: 455
+2024/10/05 20:00:16 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 20:00:26 [DEBUG]   Total record count: 455
+2024/10/05 20:02:21 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 20:02:27 [DEBUG]   Total record count: 455
+2024/10/05 20:07:15 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 20:07:25 [DEBUG]   Total record count: 455
+2024/10/05 20:08:25 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 20:08:34 [DEBUG]   Total record count: 455
+2024/10/05 20:10:20 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 20:10:29 [DEBUG]   Total record count: 455
+2024/10/05 20:12:57 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 20:13:06 [DEBUG]   Total record count: 455
+2024/10/05 20:18:16 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 20:18:27 [DEBUG]   Total record count: 455
+2024/10/05 20:18:39 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 20:18:47 [DEBUG]   Total record count: 455
+2024/10/05 20:21:14 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 20:21:25 [DEBUG]   Total record count: 455
+2024/10/05 20:21:33 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 20:21:39 [DEBUG]   Total record count: 455
+2024/10/05 20:22:56 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 20:23:07 [DEBUG]   Total record count: 455
+2024/10/05 20:23:44 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 20:23:55 [DEBUG]   Total record count: 455
+2024/10/05 20:28:45 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 20:28:56 [DEBUG]   Total record count: 455
+2024/10/05 20:29:36 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 20:29:37 [DEBUG]   Total record count: 455
+2024/10/05 20:36:31 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 20:36:32 [DEBUG]   Total record count: 455
+2024/10/05 20:38:03 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/05 20:38:03 [DEBUG]   Total record count: 455
+2024/10/06 10:39:33 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/06 10:39:34 [DEBUG]   Total record count: 455
+2024/10/06 10:43:41 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/06 10:43:42 [DEBUG]   Total record count: 455
+2024/10/06 11:22:41 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/06 11:22:41 [DEBUG]   Total record count: 455
+2024/10/06 11:32:52 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/06 11:32:53 [DEBUG]   Total record count: 455
+2024/10/06 11:34:42 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/06 11:34:43 [DEBUG]   Total record count: 455
+2024/10/06 11:36:06 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/06 11:36:06 [DEBUG]   Total record count: 455
+2024/10/06 11:37:00 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/06 11:37:00 [DEBUG]   Total record count: 455
+2024/10/06 11:38:01 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/06 11:38:02 [DEBUG]   Total record count: 455
+2024/10/06 11:39:43 [DEBUG]   Logging to file netbox.log has been initialised at level: debug
+2024/10/06 11:39:44 [DEBUG]   Total record count: 455

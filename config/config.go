@@ -28,7 +28,10 @@ type Config struct {
 		Url      string `yaml:"url"`
 		UserID   string `yaml:"userid"`
 		Password string `yaml:"password"`
-	}
+		CertFile string `yaml:"certfile"`
+		// Page determines how many records to retreive per json paginated output
+		Page int `yaml:"page"`
+	} `yaml:"omeapi"`
 
 	Logging struct {
 		Journal  bool   `yaml:"journal"`
@@ -51,6 +54,9 @@ func ParseConfig(filename string) (*Config, error) {
 		return nil, err
 	}
 	// Define some defaults
+	if config.OmeApi.Page == 0 {
+		config.OmeApi.Page = 5
+	}
 	if config.Logging.LevelStr == "" {
 		config.Logging.LevelStr = "info"
 	}

@@ -1,17 +1,9 @@
 package config
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"os"
 	"testing"
 )
-
-func hashMaker(text string) string {
-	h := sha256.New()
-	h.Write([]byte(text))
-	return hex.EncodeToString(h.Sum(nil))
-}
 
 func TestConfig(t *testing.T) {
 	testFileName := "netbox_collector.yml"
