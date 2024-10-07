@@ -6,8 +6,8 @@ omeapi:
   certfile: examples/certfile.pem
 
 database:
-  userid: assets
-  password: testing123
+  userid: postgres
+  password: assets
 
 logging:
   level: debug

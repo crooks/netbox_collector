@@ -33,14 +33,14 @@ type Config struct {
 		Page int `yaml:"page"`
 	} `yaml:"omeapi"`
 
-    Database struct {
-        Host string `yaml:"hostname"`
-        Port int `yaml:"port"`
-        User string `yaml:"userid"`
-        Password string `yaml:"password"`
-        DbName string `yaml:"dbname"`
-        SSLMode bool `yaml:"sslmode"`
-    } `yaml:"database"`
+	Database struct {
+		Host     string `yaml:"hostname"`
+		Port     int    `yaml:"port"`
+		User     string `yaml:"userid"`
+		Password string `yaml:"password"`
+		DbName   string `yaml:"dbname"`
+		SSLMode  bool   `yaml:"sslmode"`
+	} `yaml:"database"`
 
 	Logging struct {
 		Journal  bool   `yaml:"journal"`
@@ -66,15 +66,15 @@ func ParseConfig(filename string) (*Config, error) {
 	if config.OmeApi.Page == 0 {
 		config.OmeApi.Page = 5
 	}
-    if config.Database.Host == "" {
-        config.Database.Host = "localhost"
-    }
-    if config.Database.port == 0 {
-        config.Database.port = 5432
-    }
-    if config.Database.DbName == "" {
-        config.Database.DbName = "assets"
-    }
+	if config.Database.Host == "" {
+		config.Database.Host = "localhost"
+	}
+	if config.Database.Port == 0 {
+		config.Database.Port = 5432
+	}
+	if config.Database.DbName == "" {
+		config.Database.DbName = "assets"
+	}
 	if config.Logging.LevelStr == "" {
 		config.Logging.LevelStr = "info"
 	}

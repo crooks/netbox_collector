@@ -1,109 +1,134 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 
 	"github.com/Masterminds/log-go"
 	"github.com/crooks/netbox_collector/omeapi"
+	_ "github.com/lib/pq"
 	"github.com/tidwall/gjson"
 )
 
-type paginator struct {
-	api   *omeapi.AuthClient
-	top   int
-	skip  int
-	count int
-}
-
 func paginate() {
+	top := cfg.OmeApi.Page
+	skip := 0
+	count := 0
+	db := dbInit()
+	defer db.Close()
 	testMode := true
-	p := new(paginator)
-	p.top = cfg.OmeApi.Page
-	p.skip = 0
-	p.count = 0
-	p.api = omeapi.NewBasicAuthClient(cfg.OmeApi.UserID, cfg.OmeApi.Password, cfg.OmeApi.CertFile)
-	for {
-		p.omeDevices()
-		if p.skip > p.count || testMode {
-			break
-		}
-	}
-}
-
-func dbInit() {
-    psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s, sslmode=disable",
-        cfg.Database.Hostname, cfg.Database.Port, cfg.Database.Username, cfg.Database.Password, cfg.Database.DbName)
-    db, err := sql.Open("postgres", psqlInfo)
-    if err != nil {
-        panic(err)
-    }
-    return db
-}
-
-func (p *paginator) omeDevices() {
-	url := fmt.Sprintf("%s/api/DeviceService/Devices?$top=%d&skip=%d", cfg.OmeApi.Url, p.top, p.skip)
-	b, err := p.api.GetJSON(url)
-	if err != nil {
-		log.Fatalf("Unable to retrieve %s: %v", url, err)
-	}
-	gj := gjson.ParseBytes(b)
-	for _, v := range gj.Get("value").Array() {
-		fmt.Println("----------")
-		// The Device Service Tag is our unique identifier.  If it doesn't exist, ignore the record.
-		dst_field := v.Get("DeviceServiceTag")
-		if !dst_field.Exists() {
-			log.Warn("Ignoring device without Service Tag")
-			continue
-		}
-		printIfExists(v, "DeviceServiceTag")
-		printIfExists(v, "ChassisServiceTag")
-		printIfExists(v, "Model")
-		printIfExists(v, "Type")
-		// For our purposes, we only want the first interface in the list
-		device_field := v.Get("DeviceManagement.0")
-		printIfExists(device_field, "NetworkAddress")
-		printIfExists(device_field, "MacAddress")
-		printIfExists(device_field, "DeviceManagement.0.DnsName")
-		slot_field := v.Get("SlotConfiguration")
-		if slot_field.Exists() {
-			printIfExists(slot_field, "SlotNumber")
-			printIfExists(slot_field, "SlotName")
-		}
-		/*
-			device_id_field := v.Get("@odata\\.id")
-			if device_id_field.Exists() {
-				p.omeDeviceDetail(device_id_field.String())
+	bypassApi := true
+	if !bypassApi {
+		api := omeapi.NewBasicAuthClient(cfg.OmeApi.UserID, cfg.OmeApi.Password, cfg.OmeApi.CertFile)
+		for {
+			url := fmt.Sprintf("%s/api/DeviceService/Devices?$top=%d&skip=%d", cfg.OmeApi.Url, top, skip)
+			b, err := api.GetJSON(url)
+			if err != nil {
+				log.Fatalf("Unable to retrieve %s: %v", url, err)
 			}
-		*/
-	}
-	if p.count == 0 {
-		// The good people at Dell have used a . in a field name.  This needs to be \\ escaped.
-		count_field := gj.Get("@odata\\.count")
-		if !count_field.Exists() {
-			log.Fatalf("Unable to determine record count from URL: %s", url)
+			gj := gjson.ParseBytes(b)
+			for _, v := range gj.Get("value").Array() {
+				// The Device Service Tag is our unique identifier.  If it doesn't exist, ignore the record.
+				dst_field := v.Get("DeviceServiceTag")
+				if !dst_field.Exists() {
+					log.Warn("Ignoring device without Service Tag")
+					continue
+				}
+				dev := new(deviceFields)
+				dev.deviceParser(gj)
+				dev.dbInsert(db)
+			}
+			if count == 0 {
+				// The good people at Dell have used a . in a field name.  This needs to be \\ escaped.
+				count_field := gj.Get("@odata\\.count")
+				if !count_field.Exists() {
+					log.Fatalf("Unable to determine record count from URL: %s", url)
+				}
+				count = int(count_field.Int())
+				log.Debugf("Total record count: %d", count)
+			}
+			// top is the number of records we're fetching.  skip is the record number to start at.
+			skip += top
+			if skip > count || testMode {
+				break
+			}
 		}
-		p.count = int(count_field.Int())
-		log.Debugf("Total record count: %d", p.count)
 	}
-	// top is the number of records we're fetching.  skip is the record number to start at.
-	p.skip += p.top
 }
 
-func printIfExists(gj gjson.Result, key string) {
-	key_field := gj.Get(key)
-	if key_field.Exists() {
-		fmt.Printf("%s: %s\n", key, key_field.String())
+type deviceFields struct {
+	deviceServiceTag  string
+	chassisServiceTag string
+	model             string
+	networkAddress    string
+	macAddress        string
+	dnsName           string
+	slotNumber        int
+	slotName          string
+}
+
+func (dev *deviceFields) deviceParser(gj gjson.Result) {
+	dev.deviceServiceTag = gj.Get("DeviceServiceTag").String()
+	dev.chassisServiceTag = gj.Get("ChassisServiceTag").String()
+	dev.model = gj.Get("Model").String()
+	// For our purposes, we only want the first interface in the list
+	device_field := gj.Get("DeviceManagement.0")
+	dev.networkAddress = device_field.Get("NetworkAddress").String()
+	dev.macAddress = device_field.Get("MacAddress").String()
+	dev.dnsName = device_field.Get("DnsName").String()
+	slot_field := gj.Get("SlotConfiguration")
+	if slot_field.Exists() {
+		dev.slotNumber = int(slot_field.Get("SlotNumber").Int())
+		dev.slotName = slot_field.Get("SlotName").String()
 	}
 }
-func (p *paginator) omeDeviceDetail(device_id string) {
-	device_id_url := cfg.OmeApi.Url + device_id + "/InventoryDetails('serverProcessors')"
-	b, err := p.api.GetJSON(device_id_url)
+
+func dbInit() *sql.DB {
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		cfg.Database.Host, cfg.Database.Port, cfg.Database.User, cfg.Database.Password, cfg.Database.DbName)
+	log.Debugf("PostgreSQL Connection String: %s", psqlInfo)
+	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		log.Fatalf("Unable to retrieve %s: %v", device_id_url, err)
+		panic(err)
 	}
-	gj := gjson.ParseBytes(b)
-	fmt.Println(gj)
-	for k, v := range gj.Get("InventoryInfo").Array() {
-		fmt.Println(k, v.Get("ModelName").String())
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
+	sqlStatement := `CREATE TABLE IF NOT EXISTS assets (
+	  device_service_tag TEXT PRIMARY KEY,
+	  chassis_service_tag TEXT,
+	  model TEXT,
+	  network_address TEXT,
+	  mac_address TEXT,
+	  dns_name TEXT,
+	  slot_number INT,
+      slot_name TEXT
+	  );`
+	_, err = db.Exec(sqlStatement)
+	if err != nil {
+		fmt.Println(sqlStatement)
+		panic(err)
+	}
+	return db
+}
+
+func (d *deviceFields) dbInsert(db *sql.DB) {
+	sqlStatement := `
+	INSERT INTO assets (device_service_tag, chassis_service_tag, model, network_address, mac_address, dns_name, slot_number, slot_name)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+	_, err := db.Exec(
+		sqlStatement,
+		d.deviceServiceTag,
+		d.chassisServiceTag,
+		d.model,
+		d.networkAddress,
+		d.macAddress,
+		d.dnsName,
+		d.slotNumber,
+		d.slotName,
+	)
+	if err != nil {
+		panic(err)
 	}
 }
