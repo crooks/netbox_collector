@@ -3,11 +3,16 @@ package main
 import (
 	"database/sql"
 	"fmt"
+    "time"
 
 	"github.com/Masterminds/log-go"
 	"github.com/crooks/netbox_collector/omeapi"
 	_ "github.com/lib/pq"
 	"github.com/tidwall/gjson"
+)
+
+const (
+    sqlDateTime = "2006-01-02 15:04:05"
 )
 
 func paginate() {
@@ -16,8 +21,8 @@ func paginate() {
 	count := 0
 	db := dbInit()
 	defer db.Close()
-	testMode := true
-	bypassApi := true
+	testMode := false
+	bypassApi := false
 	if !bypassApi {
 		api := omeapi.NewBasicAuthClient(cfg.OmeApi.UserID, cfg.OmeApi.Password, cfg.OmeApi.CertFile)
 		for {
@@ -35,7 +40,8 @@ func paginate() {
 					continue
 				}
 				dev := new(deviceFields)
-				dev.deviceParser(gj)
+				dev.deviceParser(v)
+				dev.dbDelete(db)
 				dev.dbInsert(db)
 			}
 			if count == 0 {
@@ -103,7 +109,8 @@ func dbInit() *sql.DB {
 	  mac_address TEXT,
 	  dns_name TEXT,
 	  slot_number INT,
-      slot_name TEXT
+      slot_name TEXT,
+      last_seen TIMESTAMP
 	  );`
 	_, err = db.Exec(sqlStatement)
 	if err != nil {
@@ -115,8 +122,9 @@ func dbInit() *sql.DB {
 
 func (d *deviceFields) dbInsert(db *sql.DB) {
 	sqlStatement := `
-	INSERT INTO assets (device_service_tag, chassis_service_tag, model, network_address, mac_address, dns_name, slot_number, slot_name)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+	INSERT INTO assets (device_service_tag, chassis_service_tag, model, network_address, mac_address,
+    dns_name, slot_number, slot_name, last_seen)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
 	_, err := db.Exec(
 		sqlStatement,
 		d.deviceServiceTag,
@@ -127,8 +135,22 @@ func (d *deviceFields) dbInsert(db *sql.DB) {
 		d.dnsName,
 		d.slotNumber,
 		d.slotName,
+        sqlTimestamp(),
 	)
 	if err != nil {
 		panic(err)
 	}
+}
+
+func (d *deviceFields) dbDelete(db *sql.DB) {
+    sqlStatement := " DELETE FROM assets WHERE device_service_tag = $1"
+    _, err := db.Exec(sqlStatement, d.deviceServiceTag)
+    if err != nil {
+        panic(err)
+    }
+}
+
+func sqlTimestamp() string {
+    utc := time.Now().UTC()
+    return utc.Format(sqlDateTime)
 }
