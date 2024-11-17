@@ -41,9 +41,11 @@ func paginate() {
 				}
 				dev := new(deviceFields)
 				dev.deviceParser(v)
-				dev.dbDelete(db)
-				dev.dbInsert(db)
-				dev.deviceDetail(api, dst_field.Str)
+				//dev.dbDelete(db)
+				//dev.dbInsert(db)
+                device_id := v.Get("InventoryDetails@odata\\.navigationLink").Str
+                fmt.Println(dst_field)
+                dev.deviceDetail(api, device_id)
 			}
 			if count == 0 {
 				// The good people at Dell have used a . in a field name.  This needs to be \\ escaped.
@@ -91,16 +93,24 @@ func (dev *deviceFields) deviceParser(gj gjson.Result) {
 }
 
 func (dev *deviceFields) deviceDetail(api *omeapi.AuthClient, device_id string) {
-	device_id_url := cfg.OmeApi.Url + device_id + "/InventoryDetails('serverProcessors')"
+	device_id_url := cfg.OmeApi.Url + device_id
 	b, err := api.GetJSON(device_id_url)
 	if err != nil {
 		log.Fatalf("Unable to retrieve %s: %v", device_id_url, err)
 	}
 	gj := gjson.ParseBytes(b)
-	fmt.Println(gj)
-	for k, v := range gj.Get("InventoryInfo").Array() {
-		fmt.Println(k, v.Get("ModelName").String())
+	for _, v := range gj.Get("value").Array() {
+		switch v.Get("InventoryType").Str {
+            case "serverProcessors":
+                deviceProcessors(v.Get("InventoryInfo"))
+        }
 	}
+}
+
+func deviceProcessors(gj gjson.Result) {
+    for _, v := range gj.Array() {
+        fmt.Println(v)
+    }
 }
 
 func dbInit() *sql.DB {
