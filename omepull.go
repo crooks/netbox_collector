@@ -3,7 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
-    "time"
+	"time"
 
 	"github.com/Masterminds/log-go"
 	"github.com/crooks/netbox_collector/omeapi"
@@ -12,7 +12,7 @@ import (
 )
 
 const (
-    sqlDateTime = "2006-01-02 15:04:05"
+	sqlDateTime = "2006-01-02 15:04:05"
 )
 
 func paginate() {
@@ -43,6 +43,7 @@ func paginate() {
 				dev.deviceParser(v)
 				dev.dbDelete(db)
 				dev.dbInsert(db)
+				dev.deviceDetail(api, dst_field.Str)
 			}
 			if count == 0 {
 				// The good people at Dell have used a . in a field name.  This needs to be \\ escaped.
@@ -86,6 +87,19 @@ func (dev *deviceFields) deviceParser(gj gjson.Result) {
 	if slot_field.Exists() {
 		dev.slotNumber = int(slot_field.Get("SlotNumber").Int())
 		dev.slotName = slot_field.Get("SlotName").String()
+	}
+}
+
+func (dev *deviceFields) deviceDetail(api *omeapi.AuthClient, device_id string) {
+	device_id_url := cfg.OmeApi.Url + device_id + "/InventoryDetails('serverProcessors')"
+	b, err := api.GetJSON(device_id_url)
+	if err != nil {
+		log.Fatalf("Unable to retrieve %s: %v", device_id_url, err)
+	}
+	gj := gjson.ParseBytes(b)
+	fmt.Println(gj)
+	for k, v := range gj.Get("InventoryInfo").Array() {
+		fmt.Println(k, v.Get("ModelName").String())
 	}
 }
 
@@ -135,7 +149,7 @@ func (d *deviceFields) dbInsert(db *sql.DB) {
 		d.dnsName,
 		d.slotNumber,
 		d.slotName,
-        sqlTimestamp(),
+		sqlTimestamp(),
 	)
 	if err != nil {
 		panic(err)
@@ -143,14 +157,14 @@ func (d *deviceFields) dbInsert(db *sql.DB) {
 }
 
 func (d *deviceFields) dbDelete(db *sql.DB) {
-    sqlStatement := " DELETE FROM assets WHERE device_service_tag = $1"
-    _, err := db.Exec(sqlStatement, d.deviceServiceTag)
-    if err != nil {
-        panic(err)
-    }
+	sqlStatement := " DELETE FROM assets WHERE device_service_tag = $1"
+	_, err := db.Exec(sqlStatement, d.deviceServiceTag)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func sqlTimestamp() string {
-    utc := time.Now().UTC()
-    return utc.Format(sqlDateTime)
+	utc := time.Now().UTC()
+	return utc.Format(sqlDateTime)
 }
