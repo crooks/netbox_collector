@@ -21,7 +21,7 @@ func paginate() {
 	count := 0
 	db := dbInit()
 	defer db.Close()
-	testMode := false
+	testMode := true
 	bypassApi := false
 	if !bypassApi {
 		api := omeapi.NewBasicAuthClient(cfg.OmeApi.UserID, cfg.OmeApi.Password, cfg.OmeApi.CertFile)
@@ -48,8 +48,10 @@ func paginate() {
 					fieldID := v.Get("InventoryDetails@odata\\.navigationLink").String()
 					dev.deviceDetail(api, fieldID)
 				}
-				dev.dbDelete(db)
-				dev.dbInsert(db)
+				if !testMode {
+					dev.dbDelete(db)
+					dev.dbInsert(db)
+				}
 			}
 			if count == 0 {
 				// The good people at Dell have used a . in a field name.  This needs to be \\ escaped.
@@ -115,6 +117,8 @@ func (dev *deviceFields) deviceDetail(api *omeapi.AuthClient, device_id string) 
 			fmt.Printf("Sockets: %d\n", dev.serverSockets)
 			fmt.Printf("Cores: %d\n", dev.serverCores)
 			fmt.Printf("Speed: %d\n", dev.serverSpeed)
+		case "serverMemoryDevices":
+			fmt.Println(v)
 		}
 	}
 }
@@ -151,7 +155,7 @@ func dbInit() *sql.DB {
       slot_name TEXT,
 	  server_cpu_sockets INT,
 	  server_cpu_cores INT,
-	  server_cpu_speed INT
+	  server_cpu_speed INT,
       last_seen TIMESTAMP
 	  );`
 	_, err = db.Exec(sqlStatement)
