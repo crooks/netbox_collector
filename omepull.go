@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+    "errors"
 	"fmt"
 	"time"
 
@@ -13,6 +14,10 @@ import (
 
 const (
 	sqlDateTime = "2006-01-02 15:04:05"
+)
+
+var (
+    errUnequalInts = errors.New("unequal integers")
 )
 
 func paginate() {
@@ -34,8 +39,8 @@ func paginate() {
 			gj := gjson.ParseBytes(b)
 			for _, v := range gj.Get("value").Array() {
 				// The Device Service Tag is our unique identifier.  If it doesn't exist, ignore the record.
-				dst_field := v.Get("DeviceServiceTag")
-				if !dst_field.Exists() {
+				fieldDST := v.Get("DeviceServiceTag")
+				if !fieldDST.Exists() {
 					log.Warn("Ignoring device without Service Tag")
 					continue
 				}
@@ -43,9 +48,19 @@ func paginate() {
 				dev.deviceParser(v)
 				//dev.dbDelete(db)
 				//dev.dbInsert(db)
-                device_id := v.Get("InventoryDetails@odata\\.navigationLink").Str
-                fmt.Println(dst_field)
-                dev.deviceDetail(api, device_id)
+                // Type 1000 appears to indicate a server
+                fieldType := v.Get("Type")
+                if !fieldType.Exists() || fieldType.Int() != 1000 {
+                    continue
+                }
+                fmt.Println(fieldDST.String())
+                fieldCST := v.Get("ChassisServiceTag")
+                if !fieldCST.Exists() || fieldDST.String() == fieldCST.String() {
+                    fmt.Printf("%s: Not chassis hosted\n", fieldDST.String())
+                    continue
+                }
+                fieldID := v.Get("InventoryDetails@odata\\.navigationLink").String()
+                dev.deviceDetail(api, fieldID)
 			}
 			if count == 0 {
 				// The good people at Dell have used a . in a field name.  This needs to be \\ escaped.
@@ -74,6 +89,9 @@ type deviceFields struct {
 	dnsName           string
 	slotNumber        int
 	slotName          string
+    serverSockets     int
+    serverCores       int
+    serverSpeed       int
 }
 
 func (dev *deviceFields) deviceParser(gj gjson.Result) {
@@ -102,15 +120,35 @@ func (dev *deviceFields) deviceDetail(api *omeapi.AuthClient, device_id string) 
 	for _, v := range gj.Get("value").Array() {
 		switch v.Get("InventoryType").Str {
             case "serverProcessors":
-                deviceProcessors(v.Get("InventoryInfo"))
+                fmt.Printf("Device Tag: %s\n", dev.deviceServiceTag)
+                fmt.Printf("Chassis Tag: %s\n", dev.chassisServiceTag)
+                dev.deviceProcessors(v.Get("InventoryInfo"))
+                fmt.Printf("Sockets: %d\n", dev.serverSockets)
+                fmt.Printf("Cores: %d\n", dev.serverCores)
+                fmt.Printf("Speed: %d\n", dev.serverSpeed)
         }
 	}
 }
 
-func deviceProcessors(gj gjson.Result) {
+func (dev *deviceFields) deviceProcessors(gj gjson.Result) {
+    sockets := gj.Get("#").Int()
+    cores := gj.Get("0.NumberOfCores").Int()
+    speed := gj.Get("0.CurrentSpeed").Int()
+
+    // All of our servers should have matching CPUs.  Throw a panic if they appear to be different.
     for _, v := range gj.Array() {
-        fmt.Println(v)
+        vCores:= v.Get("NumberOfCores").Int()
+        if cores != vCores {
+            panic(errUnequalInts)
+        }
+        vSpeed := v.Get("CurrentSpeed").Int()
+        if speed != vSpeed {
+            panic(errUnequalInts)
+        }
     }
+    dev.serverSockets = int(sockets)
+    dev.serverCores = int(cores)
+    dev.serverSpeed = int(speed)
 }
 
 func dbInit() *sql.DB {
