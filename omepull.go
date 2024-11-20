@@ -118,7 +118,7 @@ func (dev *deviceFields) deviceDetail(api *omeapi.AuthClient, device_id string) 
 			fmt.Printf("Cores: %d\n", dev.serverCores)
 			fmt.Printf("Speed: %d\n", dev.serverSpeed)
 		case "serverMemoryDevices":
-			fmt.Println(v)
+			dev.deviceMemory(v.Get("InventoryInfo"))
 		}
 	}
 }
@@ -130,6 +130,13 @@ func (dev *deviceFields) deviceProcessors(gj gjson.Result) {
 	dev.serverSockets = int(sockets)
 	dev.serverCores = int(cores)
 	dev.serverSpeed = int(speed)
+}
+
+func (dev *deviceFields) deviceMemory(gj gjson.Result) {
+	dimms := gj.Get("#").Int()
+	size := gj.Get("0.Size").Int()
+	fmt.Printf("DIMMs: %d", dimms)
+	fmt.Printf("DIMM Size: %d", size)
 }
 
 func dbInit() *sql.DB {
