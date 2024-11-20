@@ -21,7 +21,7 @@ func paginate() {
 	count := 0
 	db := dbInit()
 	defer db.Close()
-	testMode := true
+	testMode := false
 	bypassApi := false
 	if !bypassApi {
 		api := omeapi.NewBasicAuthClient(cfg.OmeApi.UserID, cfg.OmeApi.Password, cfg.OmeApi.CertFile)
@@ -83,7 +83,8 @@ type deviceFields struct {
 	serverSockets     int
 	serverCores       int
 	serverSpeed       int
-	memoryDIMMS       int
+	memoryNumDIMMS    int
+	memoryDIMMSize    int
 	memoryTotal       int
 }
 
@@ -116,13 +117,8 @@ func (dev *deviceFields) deviceDetail(api *omeapi.AuthClient, device_id string) 
 		switch v.Get("InventoryType").Str {
 		case "serverProcessors":
 			dev.deviceProcessors(v.Get("InventoryInfo"))
-			fmt.Printf("Sockets: %d\n", dev.serverSockets)
-			fmt.Printf("Cores: %d\n", dev.serverCores)
-			fmt.Printf("Speed: %d\n", dev.serverSpeed)
 		case "serverMemoryDevices":
 			dev.deviceMemory(v.Get("InventoryInfo"))
-			fmt.Printf("DIMMS: %d\n", dev.memoryDIMMS)
-			fmt.Printf("Memory: %d\n", dev.memoryTotal)
 		}
 	}
 }
@@ -152,11 +148,12 @@ func (dev *deviceFields) deviceMemory(gj gjson.Result) {
 		}
 	}
 	dev.memoryTotal = int(memTotal / 1024)
+	dev.memoryDIMMSize = int(firstSize)
 	numDIMMS := int(gj.Get("#").Int())
 	if numDIMMS%2 != 0 {
 		log.Warnf("Odd number of DIMMS in device: %s", dev.deviceServiceTag)
 	}
-	dev.memoryDIMMS = numDIMMS
+	dev.memoryNumDIMMS = numDIMMS
 }
 
 func dbInit() *sql.DB {
@@ -183,6 +180,7 @@ func dbInit() *sql.DB {
 	  server_cpu_sockets INT,
 	  server_cpu_cores INT,
 	  server_cpu_speed INT,
+	  server_dimm_num INT,
 	  server_dimm_size INT,
 	  server_memory INT,
       last_seen TIMESTAMP
@@ -199,8 +197,8 @@ func (d *deviceFields) dbInsert(db *sql.DB) {
 	sqlStatement := `
 	INSERT INTO assets (device_service_tag, chassis_service_tag, model, network_address, mac_address,
     dns_name, slot_number, slot_name, server_cpu_sockets, server_cpu_cores, server_cpu_speed,
-	server_dimm_size, server_memory, last_seen)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`
+	server_dimm_num, server_dimm_size, server_memory, last_seen)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`
 	_, err := db.Exec(
 		sqlStatement,
 		d.deviceServiceTag,
@@ -214,7 +212,8 @@ func (d *deviceFields) dbInsert(db *sql.DB) {
 		d.serverSockets,
 		d.serverCores,
 		d.serverSpeed,
-		d.memoryDIMMS,
+		d.memoryNumDIMMS,
+		d.memoryDIMMSize,
 		d.memoryTotal,
 		sqlTimestamp(),
 	)
