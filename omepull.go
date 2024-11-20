@@ -137,9 +137,12 @@ func (dev *deviceFields) deviceMemory(gj gjson.Result) {
 	size := gj.Get("0.Size").Int()
 	fmt.Printf("DIMMs: %d\n", dimms)
 	fmt.Printf("DIMM Size: %d\n", size)
+	var memTotal int64
 	for n, v := range gj.Array() {
 		fmt.Printf("%d: Size: %d", n, v.Get("Size").Int())
+		memTotal += v.Get("Size").Int()
 	}
+	fmt.Printf("Mem Total: %dGB", memTotal/1024)
 }
 
 func dbInit() *sql.DB {
