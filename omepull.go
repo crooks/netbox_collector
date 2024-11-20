@@ -183,6 +183,8 @@ func dbInit() *sql.DB {
 	  server_cpu_sockets INT,
 	  server_cpu_cores INT,
 	  server_cpu_speed INT,
+	  server_dimm_size INT,
+	  server_memory INT,
       last_seen TIMESTAMP
 	  );`
 	_, err = db.Exec(sqlStatement)
@@ -196,8 +198,9 @@ func dbInit() *sql.DB {
 func (d *deviceFields) dbInsert(db *sql.DB) {
 	sqlStatement := `
 	INSERT INTO assets (device_service_tag, chassis_service_tag, model, network_address, mac_address,
-    dns_name, slot_number, slot_name, server_cpu_sockets, server_cpu_cores, server_cpu_speed, last_seen)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
+    dns_name, slot_number, slot_name, server_cpu_sockets, server_cpu_cores, server_cpu_speed,
+	server_dimm_size, server_memory, last_seen)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`
 	_, err := db.Exec(
 		sqlStatement,
 		d.deviceServiceTag,
@@ -211,6 +214,8 @@ func (d *deviceFields) dbInsert(db *sql.DB) {
 		d.serverSockets,
 		d.serverCores,
 		d.serverSpeed,
+		d.memoryDIMMS,
+		d.memoryTotal,
 		sqlTimestamp(),
 	)
 	if err != nil {
