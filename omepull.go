@@ -83,6 +83,8 @@ type deviceFields struct {
 	serverSockets     int
 	serverCores       int
 	serverSpeed       int
+	memoryDIMMS       int
+	memoryTotal       int
 }
 
 func (dev *deviceFields) deviceParser(gj gjson.Result) {
@@ -102,6 +104,8 @@ func (dev *deviceFields) deviceParser(gj gjson.Result) {
 }
 
 func (dev *deviceFields) deviceDetail(api *omeapi.AuthClient, device_id string) {
+	fmt.Printf("Device Tag: %s\n", dev.deviceServiceTag)
+	fmt.Printf("Chassis Tag: %s\n", dev.chassisServiceTag)
 	device_id_url := cfg.OmeApi.Url + device_id
 	b, err := api.GetJSON(device_id_url)
 	if err != nil {
@@ -111,14 +115,14 @@ func (dev *deviceFields) deviceDetail(api *omeapi.AuthClient, device_id string) 
 	for _, v := range gj.Get("value").Array() {
 		switch v.Get("InventoryType").Str {
 		case "serverProcessors":
-			fmt.Printf("Device Tag: %s\n", dev.deviceServiceTag)
-			fmt.Printf("Chassis Tag: %s\n", dev.chassisServiceTag)
 			dev.deviceProcessors(v.Get("InventoryInfo"))
 			fmt.Printf("Sockets: %d\n", dev.serverSockets)
 			fmt.Printf("Cores: %d\n", dev.serverCores)
 			fmt.Printf("Speed: %d\n", dev.serverSpeed)
 		case "serverMemoryDevices":
 			dev.deviceMemory(v.Get("InventoryInfo"))
+			fmt.Printf("DIMMS: %d\n", dev.memoryDIMMS)
+			fmt.Printf("Memory: %d\n", dev.memoryTotal)
 		}
 	}
 }
@@ -133,16 +137,26 @@ func (dev *deviceFields) deviceProcessors(gj gjson.Result) {
 }
 
 func (dev *deviceFields) deviceMemory(gj gjson.Result) {
-	dimms := gj.Get("#").Int()
-	size := gj.Get("0.Size").Int()
-	fmt.Printf("DIMMs: %d\n", dimms)
-	fmt.Printf("DIMM Size: %d\n", size)
+	firstSize := gj.Get("0.Size").Int()
+	firstSpeed := gj.Get("0.Speed").Int()
 	var memTotal int64
-	for n, v := range gj.Array() {
-		fmt.Printf("%d: Size: %d", n, v.Get("Size").Int())
+	for _, v := range gj.Array() {
+		dimmSize := v.Get("Size").Int()
+		dimmSpeed := v.Get("Speed").Int()
+		if dimmSize != firstSize {
+			log.Warnf("Mismatched DIMM sizes in device: %s", dev.deviceServiceTag)
+		}
 		memTotal += v.Get("Size").Int()
+		if dimmSpeed != firstSpeed {
+			log.Warnf("Mismatch DIMM speeds in device: %s", dev.deviceServiceTag)
+		}
 	}
-	fmt.Printf("Mem Total: %dGB", memTotal/1024)
+	dev.memoryTotal = int(memTotal / 1024)
+	numDIMMS := int(gj.Get("#").Int())
+	if numDIMMS%2 != 0 {
+		log.Warnf("Odd number of DIMMS in device: %s", dev.deviceServiceTag)
+	}
+	dev.memoryDIMMS = numDIMMS
 }
 
 func dbInit() *sql.DB {
