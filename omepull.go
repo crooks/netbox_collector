@@ -135,8 +135,11 @@ func (dev *deviceFields) deviceProcessors(gj gjson.Result) {
 func (dev *deviceFields) deviceMemory(gj gjson.Result) {
 	dimms := gj.Get("#").Int()
 	size := gj.Get("0.Size").Int()
-	fmt.Printf("DIMMs: %d", dimms)
-	fmt.Printf("DIMM Size: %d", size)
+	fmt.Printf("DIMMs: %d\n", dimms)
+	fmt.Printf("DIMM Size: %d\n", size)
+	for n, v := range gj.Array() {
+		fmt.Printf("%d: Size: %d", n, v.Get("Size").Int())
+	}
 }
 
 func dbInit() *sql.DB {
